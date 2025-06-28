@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+*.wav
+*.mp3
+app/progress_*.json
+app/progress.json
+static/audio/

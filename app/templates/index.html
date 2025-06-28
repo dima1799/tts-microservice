@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TTS Microservice</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <h1>TTS Microservice</h1>
+
+  <form id="tts-form">
+    <label for="file">Загрузите файл .txt или введите текст:</label><br>
+    <input type="file" id="file" name="file" accept=".txt"><br><br>
+
+    <textarea name="text" id="text" rows="10" placeholder="Введите текст здесь"></textarea><br>
+    <div id="word-count">Слов: 0</div>
+
+    <button type="submit">Озвучить</button>
+  </form>
+
+  <div id="progress-container"><div id="progress-bar"></div></div>
+  <div id="result"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
