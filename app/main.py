@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, BackgroundTasks
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -28,14 +28,19 @@ async def index(request: Request):
 
 # Обработка текста и генерация речи
 @app.post("/upload/")
-async def upload_text(text: str = Form(...)):
+async def upload_text(
+    text: str = Form(...),
+    background_tasks: BackgroundTasks,
+):
     file_id = str(uuid4())
     audio_path = os.path.join(AUDIO_DIR, f"{file_id}.wav")
 
-    try:
-        synthesize_text(text, audio_path, file_id=file_id)
-    except Exception as e:
-        return {"error": f"Ошибка синтеза речи: {str(e)}"}
+    # Создаем файл прогресса с нулевым значением до запуска фоновой задачи
+    progress_path = Path(f"app/progress_{file_id}.json")
+    with progress_path.open("w", encoding="utf-8") as f:
+        json.dump({"progress": 0}, f)
+
+    background_tasks.add_task(synthesize_text, text, audio_path, file_id=file_id)
 
     return {
         "message": "Озвучка создана",
