@@ -29,8 +29,8 @@ async def index(request: Request):
 # Обработка текста и генерация речи
 @app.post("/upload/")
 async def upload_text(
-    text: str = Form(...),
     background_tasks: BackgroundTasks,
+    text: str = Form(...),
 ):
     file_id = str(uuid4())
     audio_path = os.path.join(AUDIO_DIR, f"{file_id}.wav")
