@@ -77,8 +77,16 @@ def synthesize_text(text, output_path, file_id=None):
             file_path=None,
         )
         full_audio.extend(audio)
-        # Обновление прогресса
+
+        # Прогресс чуть меньше 100%, пока файл ещё не сохранён
+        progress = int((i + 1) / len(fragments) * 100)
+        if progress >= 100:
+            progress = 99
         with open(progress_path, "w", encoding="utf-8") as f:
-            json.dump({"progress": int((i + 1) / len(fragments) * 100)}, f)
+            json.dump({"progress": progress}, f)
 
     sf.write(output_path, np.array(full_audio), 24000)
+
+    # Теперь файл готов — обновляем прогресс до 100%
+    with open(progress_path, "w", encoding="utf-8") as f:
+        json.dump({"progress": 100}, f)
