@@ -13,8 +13,46 @@ REFERENCE_AUDIO = BASE_DIR / "static" / "speakers" / "speaker_Andrew.wav"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False).to(device)
 
-def split_text(text):
-    return re.split(r'(?<=[.!?])\s+', text.strip())
+MAX_FRAGMENT_CHARS = 300
+
+def split_text(text, max_chars: int = MAX_FRAGMENT_CHARS):
+    """Split text into fragments not exceeding ``max_chars`` characters.
+
+    The text is first split into sentences and then concatenated back
+    together until the length limit is reached. This reduces the number
+    of calls to the TTS engine which speeds up synthesis.
+    """
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+
+    fragments = []
+    current = ""
+    for sent in sentences:
+        if not sent:
+            continue
+
+        # +1 accounts for the space that will be added
+        additional = len(sent) + (1 if current else 0)
+
+        if len(current) + additional <= max_chars:
+            current = f"{current} {sent}".strip()
+        else:
+            if current:
+                fragments.append(current)
+            # If a single sentence is longer than max_chars, break it up
+            if len(sent) > max_chars:
+                start = 0
+                while start < len(sent):
+                    end = start + max_chars
+                    fragments.append(sent[start:end])
+                    start = end
+                current = ""
+            else:
+                current = sent
+
+    if current:
+        fragments.append(current)
+
+    return fragments
 
 def synthesize_text(text, output_path, file_id=None):
     if not os.path.exists(REFERENCE_AUDIO):
