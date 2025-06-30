@@ -60,9 +60,11 @@ def split_text(text, max_chars: int = MAX_FRAGMENT_CHARS):
 
     return fragments
 
-def synthesize_text(text, output_path, file_id=None):
-    if not os.path.exists(REFERENCE_AUDIO):
-        raise FileNotFoundError(f"Файл спикера не найден: {REFERENCE_AUDIO}")
+def synthesize_text(text, output_path, file_id=None, speaker_wav=None):
+    speaker_wav_path = speaker_wav or REFERENCE_AUDIO
+
+    if not os.path.exists(speaker_wav_path):
+        raise FileNotFoundError(f"Файл спикера не найден: {speaker_wav_path}")
 
     fragments = split_text(text)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -77,7 +79,7 @@ def synthesize_text(text, output_path, file_id=None):
     for i, fragment in enumerate(fragments):
         audio = tts.tts(
             text=fragment,
-            speaker_wav=str(REFERENCE_AUDIO),
+            speaker_wav=str(speaker_wav_path),
             language="ru",
             split_sentences=False,
             file_path=None,

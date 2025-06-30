@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, BackgroundTasks
+from fastapi import FastAPI, Request, Form, BackgroundTasks, UploadFile, File
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -19,7 +19,9 @@ templates = Jinja2Templates(directory="app/templates")
 
 # Путь, куда сохраняются аудиофайлы
 AUDIO_DIR = "static/audio"
+SPEAKER_DIR = "static/speakers"
 os.makedirs(AUDIO_DIR, exist_ok=True)
+os.makedirs(SPEAKER_DIR, exist_ok=True)
 
 # Главная страница
 @app.get("/", response_class=HTMLResponse)
@@ -31,16 +33,29 @@ async def index(request: Request):
 async def upload_text(
     background_tasks: BackgroundTasks,
     text: str = Form(...),
+    speaker_wav: UploadFile | None = File(None),
 ):
     file_id = str(uuid4())
     audio_path = os.path.join(AUDIO_DIR, f"{file_id}.wav")
+    speaker_path = None
+
+    if speaker_wav is not None:
+        speaker_path = os.path.join(SPEAKER_DIR, f"{file_id}_speaker.wav")
+        with open(speaker_path, "wb") as out_file:
+            out_file.write(await speaker_wav.read())
 
     # Создаем файл прогресса с нулевым значением до запуска фоновой задачи
     progress_path = Path(f"app/progress_{file_id}.json")
     with progress_path.open("w", encoding="utf-8") as f:
         json.dump({"progress": 0}, f)
 
-    background_tasks.add_task(synthesize_text, text, audio_path, file_id=file_id)
+    background_tasks.add_task(
+        synthesize_text,
+        text,
+        audio_path,
+        file_id=file_id,
+        speaker_wav=speaker_path,
+    )
 
     return {
         "message": "Озвучка создана",
