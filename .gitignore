@@ -8,3 +8,5 @@ __pycache__/
 app/progress_*.json
 app/progress.json
 static/audio/
+test_book.txt
+test.py 
