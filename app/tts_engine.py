@@ -11,7 +11,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 REFERENCE_AUDIO = BASE_DIR / "static" / "speakers" / "speaker_Andrew.wav"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False).to(device)
+tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=False)
+
+if device == "cuda":
+    tts = tts.to(device, dtype=torch.float16)
+else:
+    tts = tts.to(device)
+
 
 def split_text(text):
     return re.split(r'(?<=[.!?])\s+', text.strip())
