@@ -1,0 +1,12 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.wav
+*.mp3
+app/progress_*.json
+app/progress.json
+static/audio/
+.venv
+venv
+.git
