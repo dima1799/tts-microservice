@@ -2,6 +2,9 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
+# Agree to Coqui TTS license terms
+ENV COQUI_TOS_AGREED=1
+
 # Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
