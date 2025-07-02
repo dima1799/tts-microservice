@@ -43,3 +43,18 @@ static/         # статические файлы: JS, CSS, аудио
 requirements.txt
 ```
 
+
+## Docker
+
+Сервис можно запустить в Docker.
+Перед сборкой убедитесь, что в каталоге `static/speakers` присутствует WAV-файл с образцом голоса.
+
+Сборка образа:
+```bash
+docker build -t tts-microservice .
+```
+Запуск контейнера:
+```bash
+docker run -p 8000:8000 tts-microservice
+```
+После запуска интерфейс будет доступен по адресу `http://localhost:8000`.
